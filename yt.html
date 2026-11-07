@@ -32,6 +32,8 @@ addEventListener('message', function (e) {
   if (m.cmd === 'toggle') { if (p.getPlayerState() === 1) p.pauseVideo(); else p.playVideo(); }
   else if (m.cmd === 'play') p.playVideo();
   else if (m.cmd === 'pause') p.pauseVideo();
+  else if (m.cmd === 'mute') p.mute();
+  else if (m.cmd === 'unmute') { p.unMute(); p.setVolume(100); }
   else if (m.cmd === 'seek') p.seekTo(Math.max(0, now() + (+m.by || 0)), true);
 });
 </script>
