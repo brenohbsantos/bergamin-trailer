@@ -1,5 +1,9 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- Abre as conexões do player e das imagens enquanto o script da API ainda baixa. -->
+<link rel="preconnect" href="https://www.youtube.com">
+<link rel="preconnect" href="https://i.ytimg.com">
+<link rel="preconnect" href="https://www.google.com">
 <!-- Trailer: player oficial do YouTube (IFrame API) dentro do app. Na Samsung o app abre esta página no GitHub Pages; no Android ela é servida em https://io.bergamin.play/yt.html
      (o YouTube recusa embed sem Referer, e file:// não manda). A página do app manda comandos por postMessage e recebe o estado. -->
 <style>html, body, #p { margin: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }</style>
