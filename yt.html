@@ -1,0 +1,39 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="referrer" content="strict-origin-when-cross-origin">
+<!-- Trailer: player oficial do YouTube (IFrame API) dentro do app. Na Samsung o app abre esta página no GitHub Pages; no Android ela é servida em https://io.bergamin.play/yt.html
+     (o YouTube recusa embed sem Referer, e file:// não manda). A página do app manda comandos por postMessage e recebe o estado. -->
+<style>html, body, #p { margin: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }</style>
+</head><body><div id="p"></div>
+<script>
+var q = {}, p = null, timer = 0;
+location.search.slice(1).split('&').forEach(function (kv) { var i = kv.indexOf('='); if (i > 0) q[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1)); });
+var muted = q.mute === '1';
+function tell(o) { o.yt = 1; parent.postMessage(o, '*'); }
+function now() { return p && p.getCurrentTime ? p.getCurrentTime() : 0; }
+function onYouTubeIframeAPIReady() {
+  var vars = { autoplay: 1, controls: 0, mute: muted ? 1 : 0, rel: 0, playsinline: 1, iv_load_policy: 3, disablekb: 1, fs: 0, start: Math.floor(+q.t || 0) };
+  if (/^https?:/.test(location.protocol)) vars.origin = location.origin;
+  p = new YT.Player('p', {
+    videoId: q.v, playerVars: vars,
+    events: {
+      onReady: function (e) { if (muted) e.target.mute(); else { e.target.unMute(); e.target.setVolume(100); } e.target.playVideo(); },
+      onStateChange: function (e) {
+        clearInterval(timer);
+        if (e.data === 1) timer = setInterval(function () { tell({ t: now() }); }, 1000);
+        tell({ st: e.data, t: now() });
+      },
+      onError: function (e) { tell({ err: e.data || 1 }); }
+    }
+  });
+}
+addEventListener('message', function (e) {
+  var m = e.data || {};
+  if (!p || !p.getPlayerState || e.source !== parent) return;
+  if (m.cmd === 'toggle') { if (p.getPlayerState() === 1) p.pauseVideo(); else p.playVideo(); }
+  else if (m.cmd === 'play') p.playVideo();
+  else if (m.cmd === 'pause') p.pauseVideo();
+  else if (m.cmd === 'seek') p.seekTo(Math.max(0, now() + (+m.by || 0)), true);
+});
+</script>
+<script src="https://www.youtube.com/iframe_api" onerror="tell({ err: 'net' })"></script>
+</body></html>
